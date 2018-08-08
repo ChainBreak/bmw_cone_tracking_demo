@@ -15,7 +15,7 @@ class ConeDetector():
         #cv2.namedWindow("mask",0)
         
         #get capture device
-        self.cam = cv2.VideoCapture(1)
+        self.cam = None
         
         #set click callbacks
         cv2.setMouseCallback("camera",self.click_callback)
@@ -56,7 +56,28 @@ class ConeDetector():
         
         pickle.dump((self.color_mean, self.color_std),open("color.pickle","wb"))
             
+    def try_get_frame(self):
         
+        if self.cam is None:
+            self.cam = cv2.VideoCapture(1)
+            
+        ret, self.frame = self.cam.read()
+        i = 0
+	    
+        while i < 4 and self.frame is None:
+            print("Trying Camera %i" % i)
+
+            self.cam.release()
+            self.cam = cv2.VideoCapture(i)
+            rospy.sleep(0.1)
+            ret, self.frame = self.cam.read()
+            rospy.sleep(0.1)
+            ret, self.frame = self.cam.read()
+            i += 1
+            
+            
+	    
+ 
     def click_callback(self,event,x,y,flags,params):
         if event == cv2.EVENT_LBUTTONDOWN:
             self.mouse_down = True
@@ -75,7 +96,7 @@ class ConeDetector():
         
 
         while not rospy.is_shutdown():
-            ret, self.frame = self.cam.read()
+            self.try_get_frame()
             if not self.frame is None:
                 self.test_frame = cv2.cvtColor(self.frame, cv2.COLOR_BGR2LAB)
                 self.update_color()
