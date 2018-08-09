@@ -1,0 +1,4 @@
+<launch>
+  <node name="cone_detector" pkg="bmw_cone_tracking_demo" type="cone_detector.py" output="screen"/>
+  <node name="cone_steering" pkg="bmw_mab_py_interface" type="cone_steering_demo.py" output="screen"/>
+</launch>
